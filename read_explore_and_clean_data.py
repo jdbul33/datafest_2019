@@ -11,6 +11,7 @@ Import necessary packages
 """
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 #%%
 
@@ -42,6 +43,14 @@ assert games_data.isna().sum().sum() == 0
 
 #%%
 """
+Games Exploration
+"""
+games_data.hist()
+
+
+
+#%%
+"""
 RPE
 """
 rpe_data.head()
@@ -52,6 +61,14 @@ rpe_data.isna().sum()
 
 #Significant missing data, especially in BestOutOfmySelf and Daily Load
 
+#session_type_values = rpe_data['SessionType'].unique()
+#%%
+"""
+RPE Exploration
+"""
+rpe_data.hist()
+
+
 #%%
 """
 Wellness
@@ -61,6 +78,12 @@ wellness_data.columns
 wellness_data.info()
 #wellness_data.describe().to_csv("wellness_description.csv")
 wellness_data.isna().sum()
+
+#%%
+"""
+Wellness Exploration
+"""
+wellness_data.hist()
 
 
 #%%
@@ -73,7 +96,12 @@ gps_data.info()
 #gps_data.describe().to_csv("gps_description.csv")
 gps_data.isna().sum()
 
+
 #%%
+"""
+GPS Exploration
+"""
+gps_data.hist()
 
 
 

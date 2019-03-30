@@ -1,3 +1,0 @@
-hello
-testing  
-git push
