@@ -12,6 +12,7 @@ Import necessary packages
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 #%%
 
@@ -183,3 +184,75 @@ Merge this all into one
 
 all_gps_data_summarized = pd.merge(accel_speed_merged, main, how='inner', left_index=True, right_index=True)
 #all_gps_data_summarized.to_csv("GPS_Summary.csv")
+
+#%%
+"""
+Split by halves
+"""
+
+splitting_up = pd.DataFrame(all_gps_data_summarized.to_records())
+
+first_half = splitting_up[splitting_up['Half'] == "1"]
+second_half = splitting_up[splitting_up['Half'] == "2"]
+halves_merged = pd.merge(first_half, second_half, how='inner', on=['PlayerID', 'GameID'], suffixes=('_1','_2'))
+halves_merged.isna().sum().sum()
+
+#%%
+"""
+Speed Difference
+"""
+
+halves_merged['Speed_Diff_by_Half'] = halves_merged.Speed_mean_1 - halves_merged.Speed_mean_2
+
+halves_merged['Accel_Load_Diff_by_Half'] = halves_merged.AccelLoad_mean_1 - halves_merged.AccelLoad_mean_2
+halves_merged['Accel_Impulse_Diff_by_Half'] = halves_merged.AccelImpulse_mean_1 - halves_merged.AccelImpulse_mean_2
+halves_merged['Accel_3D_Diff_by_Half'] = halves_merged.Accel_3D_mean_1 - halves_merged.Accel_3D_mean_2
+
+#%%
+"""
+RPE Grouping and Clean
+"""
+
+rpe_games_data = rpe_data[rpe_data['SessionType'] == 'Game']
+rpe_games_data_cleaner = rpe_games_data.drop(columns=['Training', 'SessionType', 'SessionLoad', 'ObjectiveRating', 'FocusRating', 'BestOutOfMyself', 'DailyLoad'])
+
+vars_to_include = ['Duration', 'RPE', 'AcuteLoad', 'ChronicLoad', 'AcuteChronicRatio']
+list_of_frames = []
+
+for i in vars_to_include:
+    if i == 'Duration':
+        list_of_frames.append(rpe_games_data_cleaner.groupby(['PlayerID', 'Date'])[i].sum().to_frame())
+    else:
+        list_of_frames.append(rpe_games_data_cleaner.groupby(['PlayerID', 'Date'])[i].mean().to_frame())
+    
+for i in range(len(list_of_frames)-1):
+    if i == 0:
+        j = i + 1
+        merge_start = pd.merge(list_of_frames[i], list_of_frames[j], right_index=True, left_index=True, suffixes=('_sum', '_mean'))
+    if i == 1:
+        j = i + 1
+        merging = pd.merge(merge_start, list_of_frames[j], right_index=True, left_index=True, suffixes=('', '_mean'))
+    else:
+        j = i + 1
+        merging = pd.merge(merging, list_of_frames[j], right_index=True, left_index=True, suffixes=('', '_mean'))
+    
+#%%
+"""
+Join with Games
+"""
+
+rpe_data_for_games = pd.DataFrame(merging.to_records())
+rpe_data_for_games['PlayerID'] = rpe_data_for_games['PlayerID'].astype(str)
+games_clean_data = games_data.drop(columns=['TournamentGame', 'Tournament', 'Team', 'Opponent', 'Outcome'])
+games_clean_data['GameID'] = games_clean_data['GameID'].astype(str)
+games_w_rpe_data = pd.merge(games_clean_data, rpe_data_for_games, left_on='Date', right_on='Date')
+
+#%%
+"""
+Merge with the GPS data and such
+"""
+halves_merged.set_index(['GameID', 'PlayerID'], inplace=True)
+games_w_rpe_data.set_index(['GameID', 'PlayerID'], inplace=True)
+all_data = pd.merge(halves_merged, games_w_rpe_data, left_index=True, right_index=True)
+
+#all_data.to_csv('all_except_wellness_data.csv')
