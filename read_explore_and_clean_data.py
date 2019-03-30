@@ -229,7 +229,7 @@ for i in range(len(list_of_frames)-1):
     if i == 0:
         j = i + 1
         merge_start = pd.merge(list_of_frames[i], list_of_frames[j], right_index=True, left_index=True, suffixes=('_sum', '_mean'))
-    if i == 1:
+    elif i == 1:
         j = i + 1
         merging = pd.merge(merge_start, list_of_frames[j], right_index=True, left_index=True, suffixes=('', '_mean'))
     else:
@@ -256,3 +256,57 @@ games_w_rpe_data.set_index(['GameID', 'PlayerID'], inplace=True)
 all_data = pd.merge(halves_merged, games_w_rpe_data, left_index=True, right_index=True)
 
 #all_data.to_csv('all_except_wellness_data.csv')
+
+#%%
+"""
+Merge Mark's wellness normed to the table
+"""
+file_path_wellness_norm = 'wellness_normalized.csv'
+wellness_normalized = pd.read_csv(file_path_wellness_norm)
+
+
+wellness_normalized['PlayerID'] = wellness_normalized['PlayerID'].astype(str)
+wellness_normalized.drop(columns=['Unnamed: 0', 'BedTime', 'WakeTime', 'USGMeasurement',
+                                  'USG', 'NutritionAdjustment', 'Nutrition'], inplace=True)
+    
+wellness_normalized['TrainingReadiness'] = wellness_normalized['TrainingReadiness'].str.strip('%').astype(int)
+
+wellness_normalized.isna().sum()
+
+wellness_normalized['Menstruation'].value_counts()
+
+wellness_normalized['Menstruation'] = wellness_normalized['Menstruation'].fillna('No')
+
+assert wellness_normalized.isna().sum().sum() == 0
+
+#%%
+"""
+Make Dummies
+"""
+wellness_normalized.set_index(['PlayerID', 'Date'], inplace=True)
+wellness_w_dummies = pd.get_dummies(wellness_normalized)
+
+#%%
+"""
+Join to rest of data
+"""
+
+all_data_apart = pd.DataFrame(all_data.to_records())
+all_data_apart.set_index(['PlayerID', 'Date'], inplace=True)
+
+even_more_all_data = pd.merge(all_data_apart, wellness_w_dummies, how='left',
+                              left_index=True, right_index=True)
+even_more_all_data.drop(columns=['Half_1', 'Half_2'], inplace=True)
+even_more_all_data_games_dummies = pd.get_dummies(even_more_all_data)
+
+even_more_all_data_games_dummies.to_csv('all_data_games_dummies.csv')
+
+
+
+
+
+
+
+
+
+
