@@ -163,7 +163,7 @@ accelload_grouped_sum = gps_data.groupby(['PlayerID', 'GameID', 'Half'])['Count_
 
 accel_speed_merged = pd.merge(accel_speed_merged, accelload_grouped_sum, how='inner', left_index=True, right_index=True)
 
-#####
+#####################################################
 
 stddev_of_speed = 1.5*(gps_data['Speed'].std())
 
@@ -180,6 +180,24 @@ gps_data['Count_Speed_GE_1.5_SD'] = temp_list
 speedstd_grouped_sum = gps_data.groupby(['PlayerID', 'GameID', 'Half'])['Count_Speed_GE_1.5_SD'].sum().to_frame()
 
 accel_speed_merged = pd.merge(accel_speed_merged, speedstd_grouped_sum, how='inner', left_index=True, right_index=True)
+
+#####################################################
+
+stddev_of_AccelImpulse = 1.5*(gps_data['AccelImpulse'].std())
+
+temp_list = []
+
+for i in range(len(gps_data['AccelImpulse'])):
+    if gps_data['AccelImpulse'].iloc[i] >= stddev_of_AccelImpulse or gps_data['AccelImpulse'].iloc[i] >= stddev_of_AccelImpulse:
+        temp_list.append(1)
+    else:
+        temp_list.append(0)
+        
+gps_data['Count_AccelImpulse_GE_1.5_SD'] = temp_list
+
+AccelImpulse_grouped_sum = gps_data.groupby(['PlayerID', 'GameID', 'Half'])['Count_AccelImpulse_GE_1.5_SD'].sum().to_frame()
+
+accel_speed_merged = pd.merge(accel_speed_merged, AccelImpulse_grouped_sum, how='inner', left_index=True, right_index=True)
 
 
 #%%
@@ -337,16 +355,28 @@ even_more_all_data_games_dummies = pd.get_dummies(even_more_all_data)
 #%%
 """
 Create more fucking variables for my failing model team
+Get rid of game dummies
 """
-"""
-accel_eval_list = ['AccelX', 'AccelY', 'AccelZ', 'AccelLoad', 'Accel_3D', 'Speed']
+
+almost_final_data = even_more_all_data
+accel_eval_list = ['Count_Speed_GE_1.5_SD', 'Count_Accel_Load_GE_1.5_SD', 'Count_AccelImpulse_GE_1.5_SD']
 
 for i in accel_eval_list:
+    x = i + "_1"
+    y = i + "_2"
     list_of_holding = []
-    for j in range(len(even_more_all_data_games_dummies)):
-        if even_more_all_data_games_dummies[i].iloc[j] >= even_more_all_data_games_dummies[i]
+    for j in range(len(almost_final_data)):
+        z = almost_final_data[x].iloc[j] - almost_final_data[y].iloc[j]
+        list_of_holding.append(z)
+    new_name = i + "_Diff"
+    almost_final_data[new_name] = list_of_holding
 
-"""
+almost_final_data.to_csv('Jellybean.csv')
+    
+
+
+        
+
 
 
 
