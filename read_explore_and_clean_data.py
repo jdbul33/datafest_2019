@@ -46,7 +46,7 @@ assert games_data.isna().sum().sum() == 0
 """
 Games Exploration
 """
-games_data.hist()
+#games_data.hist()
 
 
 
@@ -67,7 +67,7 @@ rpe_data.isna().sum()
 """
 RPE Exploration
 """
-rpe_data.hist()
+#rpe_data.hist()
 
 
 #%%
@@ -84,7 +84,7 @@ wellness_data.isna().sum()
 """
 Wellness Exploration
 """
-wellness_data.hist()
+#wellness_data.hist()
 
 
 #%%
@@ -102,7 +102,7 @@ gps_data.isna().sum()
 """
 GPS Exploration
 """
-gps_data.hist()
+#gps_data.hist()
 
 
 #%%
@@ -143,10 +143,44 @@ accel_speed_merged = pd.merge(accelimpulse_merged, speed_merged, how='inner', le
 
 #%%
 """
-Create Eli calc column
+Create Eli calc columns
 """
 
 gps_data['Accel_3D'] = ((gps_data['AccelX']**2)+(gps_data['AccelY']**2)+(gps_data['AccelZ']**2))**(0.5)
+stddev_of_accel_load = 1.5*(gps_data['AccelLoad'].std())
+
+temp_list = []
+
+for i in range(len(gps_data['AccelLoad'])):
+    if gps_data['AccelLoad'].iloc[i] >= stddev_of_accel_load or gps_data['AccelLoad'].iloc[i] >= stddev_of_accel_load:
+        temp_list.append(1)
+    else:
+        temp_list.append(0)
+        
+gps_data['Count_Accel_Load_GE_1.5_SD'] = temp_list
+
+accelload_grouped_sum = gps_data.groupby(['PlayerID', 'GameID', 'Half'])['Count_Accel_Load_GE_1.5_SD'].sum().to_frame()
+
+accel_speed_merged = pd.merge(accel_speed_merged, accelload_grouped_sum, how='inner', left_index=True, right_index=True)
+
+#####
+
+stddev_of_speed = 1.5*(gps_data['Speed'].std())
+
+temp_list = []
+
+for i in range(len(gps_data['Speed'])):
+    if gps_data['Speed'].iloc[i] >= stddev_of_speed or gps_data['Speed'].iloc[i] >= stddev_of_speed:
+        temp_list.append(1)
+    else:
+        temp_list.append(0)
+        
+gps_data['Count_Speed_GE_1.5_SD'] = temp_list
+
+speedstd_grouped_sum = gps_data.groupby(['PlayerID', 'GameID', 'Half'])['Count_Speed_GE_1.5_SD'].sum().to_frame()
+
+accel_speed_merged = pd.merge(accel_speed_merged, speedstd_grouped_sum, how='inner', left_index=True, right_index=True)
+
 
 #%%
 """
@@ -203,7 +237,6 @@ Speed Difference
 """
 
 halves_merged['Speed_Diff_by_Half'] = halves_merged.Speed_mean_1 - halves_merged.Speed_mean_2
-
 halves_merged['Accel_Load_Diff_by_Half'] = halves_merged.AccelLoad_mean_1 - halves_merged.AccelLoad_mean_2
 halves_merged['Accel_Impulse_Diff_by_Half'] = halves_merged.AccelImpulse_mean_1 - halves_merged.AccelImpulse_mean_2
 halves_merged['Accel_3D_Diff_by_Half'] = halves_merged.Accel_3D_mean_1 - halves_merged.Accel_3D_mean_2
@@ -299,10 +332,21 @@ even_more_all_data = pd.merge(all_data_apart, wellness_w_dummies, how='left',
 even_more_all_data.drop(columns=['Half_1', 'Half_2'], inplace=True)
 even_more_all_data_games_dummies = pd.get_dummies(even_more_all_data)
 
-even_more_all_data_games_dummies.to_csv('all_data_games_dummies.csv')
+#even_more_all_data_games_dummies.to_csv('all_data_games_dummies.csv')
 
+#%%
+"""
+Create more fucking variables for my failing model team
+"""
+"""
+accel_eval_list = ['AccelX', 'AccelY', 'AccelZ', 'AccelLoad', 'Accel_3D', 'Speed']
 
+for i in accel_eval_list:
+    list_of_holding = []
+    for j in range(len(even_more_all_data_games_dummies)):
+        if even_more_all_data_games_dummies[i].iloc[j] >= even_more_all_data_games_dummies[i]
 
+"""
 
 
 
