@@ -371,8 +371,23 @@ for i in accel_eval_list:
     new_name = i + "_Diff"
     almost_final_data[new_name] = list_of_holding
 
+another_list_of_holding = []
+for i in range(len(almost_final_data)):
+    x = almost_final_data['TeamPoints'].iloc[i]
+    y = almost_final_data['TeamPointsAllowed'].iloc[i]
+    assert x != y
+    if x > y:
+        another_list_of_holding.append(1)
+    else:
+        another_list_of_holding.append(0)
+
+almost_final_data['Victory'] = another_list_of_holding
+        
+
 almost_final_data.to_csv('Jellybean.csv')
-    
+
+#%%
+
 
 
         
