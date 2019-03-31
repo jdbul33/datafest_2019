@@ -3,7 +3,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.spydata
 
 # C extensions
 *.so
@@ -141,3 +141,4 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+.Rproj.user

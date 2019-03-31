@@ -382,11 +382,12 @@ for i in range(len(almost_final_data)):
         another_list_of_holding.append(0)
 
 almost_final_data['Victory'] = another_list_of_holding
+
+assert almost_final_data['Victory'].isna().sum() == 0
         
 
-almost_final_data.to_csv('Jellybean.csv')
+#almost_final_data.to_csv('Jellybean.csv')
 
-#%%
 
 
 
