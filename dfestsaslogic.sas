@@ -6,7 +6,7 @@
 %web_drop_table(WORK.IMPORT);
 
 
-FILENAME REFFILE '/home/craiggarzella0/sasuser.v94/fuckthissasshit.csv';
+FILENAME REFFILE '/home/craiggarzella0/sasuser.v94/d_fest_IV.csv';
 
 PROC IMPORT DATAFILE=REFFILE
 	DBMS=CSV
