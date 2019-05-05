@@ -1,7 +1,4 @@
-/* Generated Code (IMPORT) */
-/* Source File: fuckthissasshit.csv */
-/* Source Path: /home/craiggarzella0/sasuser.v94 */
-/* Code generated on: 3/30/19, 11:07 PM */
+
 
 %web_drop_table(WORK.IMPORT);
 
